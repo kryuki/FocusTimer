@@ -46,7 +46,6 @@ public class GameManager : MonoBehaviour {
         //DirectoryInfoを取る
         info = new DirectoryInfo(basePath + "/../FocusTimer");
         savePath = info.FullName + "/TimeHistory.txt";
-        Debug.Log(savePath);
 #elif UNITY_ANDROID
         basePath = Application.persistentDataPath;
         savePath = basePath + "/../TimeHistory.txt";
@@ -60,9 +59,10 @@ public class GameManager : MonoBehaviour {
         using (StreamWriter writer = new StreamWriter(savePath)) {
             FileInfo info = new FileInfo(savePath);
             if (info.Length == 0) {
-                for (int i = 0; i < 1000; i++) {
+                for (int i = 0; i < 10; i++) {
                     writer.WriteLine(DateTime.Today.AddDays(i).Date);
                 }
+                writer.Close();
             }
         }
     }
@@ -132,18 +132,54 @@ public class GameManager : MonoBehaviour {
 
     //OKボタンを押した
     public void PressOK() {
+        //これまでの時間を取得する
+        FileStream fs_read = File.OpenRead(savePath);
+        StreamReader reader = new StreamReader(fs_read);
+        string total_time = null;
+        string all;
+        while (true) {
+            string read = reader.ReadLine();
+            if (read == null) {
+                break;
+            }
+            string[] splits = read.Split(' ');
+            if (splits[0] == DateTime.Today.ToString().Split(' ')[0]) {
+                total_time = splits[1];
+                break;
+            }
+        }
+        all = reader.ReadToEnd();
+        fs_read.Seek(0, SeekOrigin.Begin);  //読み込み位置初期化
+        reader.Close();
+        Debug.Log(all);
+
+        //取得したこれまでの時間を秒に変換する
+        string[] time_splits = total_time.Split(':');
+        int time_passed = 3600 * int.Parse(time_splits[0]) + 60 * int.Parse(time_splits[1]) + int.Parse(time_splits[2]);
+
+        //★合計時間をテキストファイルに記録する
+        int time_sum = time_passed + (int)Mathf.Floor(time);
+        //合計時間を、00:00:00の形で表記する
+        //秒の計算
+        int seconds_sum = (int)Mathf.Floor(time_sum) % 60;  //現在のカウント時間を60で割った余りが秒である
+        //分の計算
+        int minutes_sum = (int)Mathf.Floor(time_sum) / 60;  //ここで分数を求める
+        minutes %= 60;  //それを60で割った余りが分となる
+        //時の計算
+        int hours_sum = (int)Mathf.Floor(time_sum) / 3600;  //3600で割った商が時間である
+        //文字列置換
+        all = all.Replace(DateTime.Today.ToString().Split(' ')[0] + ' ' + total_time, DateTime.Today.ToString().Split(' ')[0] + ' ' + hours_sum.ToString() + ':' + minutes_sum.ToString() + ':' + seconds_sum.ToString());
+
+        
+        StreamWriter writer = new StreamWriter(savePath);
+        writer.Write(all);
+        writer.Close();
+
         //ポップアップ関連の操作
         PressPopUp();
 
-        //これまでの時間を取得する
-        using (StreamReader reader = new StreamReader(savePath)) {
-            
-        }
 
-        //合計時間をテキストファイルに記録する
-
-
-        //合計時間を表示する
+        //★合計時間を表示する
 
 
     }
@@ -154,8 +190,13 @@ public class GameManager : MonoBehaviour {
 
         //時間をゼロにリセットする
         time = 0;
+        hours = 0;
+        minutes = 0;
+        seconds = 0;
     }
 
     //日付が変わった時の処理
+    void EndOfTheDay() {
 
+    }
 }
