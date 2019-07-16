@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System;
+using System.IO;
 
 public class GameManager : MonoBehaviour {
     //ブール値系
@@ -28,9 +29,42 @@ public class GameManager : MonoBehaviour {
     //ゲームオブジェクト系
     [SerializeField] GameObject popup;  //ポップアップオブジェクト
 
+    //パス系
+    string basePath;  //ベースとなるパス
+    string savePath;  //保存先のパス
+    DirectoryInfo info;
+
     // Start is called before the first frame update
     void Start() {
+        //エディタ上、アンドロイド、iOSそれぞれについて保存パスを取る
+#if UNITY_EDITOR
+        basePath = Application.dataPath;
+        //FocusTimerフォルダがなければ作る
+        if (!Directory.Exists(basePath + "/FocusTimer")) {
+            Directory.CreateDirectory(basePath + "/../FocusTimer");
+        }
+        //DirectoryInfoを取る
+        info = new DirectoryInfo(basePath + "/../FocusTimer");
+        savePath = info.FullName + "/TimeHistory.txt";
+        Debug.Log(savePath);
+#elif UNITY_ANDROID
+        basePath = Application.persistentDataPath;
+        savePath = basePath + "/../TimeHistory.txt";
+#elif UNITY_IOS
+        basePath = Application.persistentDataPath;
+        info = new DirectoryInfo(basePath + "/FocusTimer");
+        savePath = info.FullName + "/TimeHistory.txt";
+#endif
 
+        //1000行分の最初分の行を記入する
+        using (StreamWriter writer = new StreamWriter(savePath)) {
+            FileInfo info = new FileInfo(savePath);
+            if (info.Length == 0) {
+                for (int i = 0; i < 1000; i++) {
+                    writer.WriteLine(DateTime.Today.AddDays(i).Date);
+                }
+            }
+        }
     }
 
     // Update is called once per frame
@@ -92,11 +126,36 @@ public class GameManager : MonoBehaviour {
 
     //キャンセルボタンを押した
     public void PressCansel() {
-
+        //ポップアップ関連の操作
+        PressPopUp();
     }
 
     //OKボタンを押した
     public void PressOK() {
+        //ポップアップ関連の操作
+        PressPopUp();
+
+        //これまでの時間を取得する
+        using (StreamReader reader = new StreamReader(savePath)) {
+            
+        }
+
+        //合計時間をテキストファイルに記録する
+
+
+        //合計時間を表示する
+
 
     }
+
+    void PressPopUp() {
+        //ポップアップを隠す
+        isPopup = false;
+
+        //時間をゼロにリセットする
+        time = 0;
+    }
+
+    //日付が変わった時の処理
+
 }
