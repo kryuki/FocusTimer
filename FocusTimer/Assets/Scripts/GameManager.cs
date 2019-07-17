@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour {
     //ブール値系
     bool isCounting = false;  //計測が開始しているか
     bool isPopup = false;  //ポップアップが表示されているか
+    bool isPopup_end = false;  //（一日が終わった時の）ポップアップが表示されているか
 
     //表示用テキスト
     [SerializeField] Text timerTextHour;  //時
@@ -33,11 +34,16 @@ public class GameManager : MonoBehaviour {
 
     //ゲームオブジェクト系
     [SerializeField] GameObject popup;  //ポップアップオブジェクト
+    [SerializeField] GameObject popup_end;  //一日の終わりがきたときにポップアップするオブジェクト
 
     //パス系
     string basePath;  //ベースとなるパス
     string savePath;  //保存先のパス
     DirectoryInfo info_unity;
+
+    //今の日付と前フレームの日付
+    DateTime date_prev;
+    DateTime date_now;
 
     // Start is called before the first frame update
     void Start() {
@@ -82,6 +88,14 @@ public class GameManager : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
+        //もし途中で日付をまたいだ時
+        date_now = DateTime.Today.Date;
+        if (date_now != date_prev) {
+            //日付をまたぐ処理
+            EndOfTheDay();
+        }
+        date_prev = date_now;
+
         //カウントフラグがオンの時のみカウントを有効にする
         if (isCounting) {
             time += Time.deltaTime;
@@ -108,6 +122,7 @@ public class GameManager : MonoBehaviour {
 
         //ポップアップの表示
         popup.SetActive(isPopup);
+        popup_end.SetActive(isPopup_end);
     }
 
     //再生ボタンを押した
@@ -188,6 +203,7 @@ public class GameManager : MonoBehaviour {
     void PressPopUp() {
         //ポップアップを隠す
         isPopup = false;
+        isPopup_end = false;
 
         //時間をゼロにリセットする
         time = 0;
@@ -198,9 +214,21 @@ public class GameManager : MonoBehaviour {
 
     //日付が変わった時の処理
     void EndOfTheDay() {
+        //ポップアップが出ていたらスルー
+        if (popup) {
+            return;
+        }
+        //カウント停止中ならスルー
+        if (!isCounting) {
+            return;
+        }
 
+        //カウントを停止する
+        isCounting = false;
+        //日付変更を知らせるポップアップを出す
+        isPopup_end = true;
     }
-    
+
     //これまでの合計時間を求める
     string GetCurrentSumTime() {
         FileStream fs_read = File.OpenRead(savePath);
