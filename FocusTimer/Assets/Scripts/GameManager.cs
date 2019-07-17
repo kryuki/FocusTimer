@@ -82,7 +82,8 @@ public class GameManager : MonoBehaviour {
         if (info.Length == 0) {
             using (StreamWriter writer = new StreamWriter(savePath)) {
                 for (int i = 0; i < 10; i++) {
-                    writer.WriteLine(DateTime.Today.AddDays(i).Date);
+                    writer.Write(DateTime.Today.AddDays(i).Date.ToString("yyyy/MM/dd"));
+                    writer.WriteLine(" 00:00:00");
                 }
                 writer.Close();
             }
