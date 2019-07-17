@@ -20,6 +20,11 @@ public class GameManager : MonoBehaviour {
     [SerializeField] Text popupTextMinute;  //分
     [SerializeField] Text popupTextSecond;  //秒
 
+    //一日の合計時間表示用テキスト
+    [SerializeField] Text dayTextHour;  //時
+    [SerializeField] Text dayTextMinute;  //分
+    [SerializeField] Text dayTextSecond;  //秒
+
     //時間カウント用
     int hours;  //時
     int minutes;  //分
@@ -136,7 +141,6 @@ public class GameManager : MonoBehaviour {
         FileStream fs_read = File.OpenRead(savePath);
         StreamReader reader = new StreamReader(fs_read);
         string total_time = null;
-        string all;
         while (true) {
             string read = reader.ReadLine();
             if (read == null) {
@@ -145,13 +149,12 @@ public class GameManager : MonoBehaviour {
             string[] splits = read.Split(' ');
             if (splits[0] == DateTime.Today.ToString().Split(' ')[0]) {
                 total_time = splits[1];
-                break;
             }
         }
-        all = reader.ReadToEnd();
         fs_read.Seek(0, SeekOrigin.Begin);  //読み込み位置初期化
+        string all;
+        all = reader.ReadToEnd();
         reader.Close();
-        Debug.Log(all);
 
         //取得したこれまでの時間を秒に変換する
         string[] time_splits = total_time.Split(':');
@@ -170,18 +173,17 @@ public class GameManager : MonoBehaviour {
         //文字列置換
         all = all.Replace(DateTime.Today.ToString().Split(' ')[0] + ' ' + total_time, DateTime.Today.ToString().Split(' ')[0] + ' ' + hours_sum.ToString() + ':' + minutes_sum.ToString() + ':' + seconds_sum.ToString());
 
-        
-        StreamWriter writer = new StreamWriter(savePath);
+        StreamWriter writer = new StreamWriter(savePath, false);
         writer.Write(all);
         writer.Close();
 
         //ポップアップ関連の操作
         PressPopUp();
 
-
         //★合計時間を表示する
-
-
+        dayTextSecond.text = String.Format("{0:D2}", seconds_sum);  //秒
+        dayTextMinute.text = String.Format("{0:D2}", minutes_sum);  //分
+        dayTextHour.text = String.Format("{0:D2}", hours_sum);  //時
     }
 
     void PressPopUp() {
