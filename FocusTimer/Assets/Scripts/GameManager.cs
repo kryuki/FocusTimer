@@ -30,7 +30,7 @@ public class GameManager : MonoBehaviour {
     int hours;  //時
     int minutes;  //分
     int seconds;  //秒
-    float time;  //現在のカウント時間（秒）
+    float time = 0.0f;  //現在のカウント時間（秒）
 
     //ゲームオブジェクト系
     [SerializeField] GameObject popup;  //ポップアップオブジェクト
@@ -260,5 +260,20 @@ public class GameManager : MonoBehaviour {
         reader.Close();
 
         return all;
+    }
+
+    //Historyボタンを押した
+    public void PressHistory() {
+        //カメラを移動して別のキャンバスを映す
+    }
+
+    //Settingsボタンを押した
+    public void PressSettings() {
+        //カメラを移動して別のキャンバスを映す
+    }
+
+    //ComingSoonボタンを押した
+    public void PressComingSoon() {
+
     }
 }
