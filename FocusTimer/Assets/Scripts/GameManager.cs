@@ -63,7 +63,11 @@ public class GameManager : MonoBehaviour {
         savePath = basePath + "/../TimeHistory.txt";
 #elif UNITY_IOS
         basePath = Application.persistentDataPath;
-        info_unity = new DirectoryInfo(basePath + "/FocusTimer");
+        if (!Directory.Exists(basePath + "/FocusTimer")){
+            info_unity = Directory.CreateDirectory(basePath + "/FocusTimer");
+        } else {
+            info_unity = new DirectoryInfo(basePath + "/FocusTimer");
+        }
         savePath = info_unity.FullName + "/TimeHistory.txt";
 #endif
 
