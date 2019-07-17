@@ -35,6 +35,7 @@ public class GameManager : MonoBehaviour {
     //ゲームオブジェクト系
     [SerializeField] GameObject popup;  //ポップアップオブジェクト
     [SerializeField] GameObject popup_end;  //一日の終わりがきたときにポップアップするオブジェクト
+    [SerializeField] GameObject panels;  //モードごとに画面を切り替えるための、全画面をまとめたパネル
 
     //パス系
     string basePath;  //ベースとなるパス
@@ -264,16 +265,24 @@ public class GameManager : MonoBehaviour {
 
     //Historyボタンを押した
     public void PressHistory() {
-        //カメラを移動して別のキャンバスを映す
+        //パネルを移動
+        panels.transform.localPosition = new Vector3(1200.0f, 0.0f, 0.0f);
     }
 
     //Settingsボタンを押した
     public void PressSettings() {
-        //カメラを移動して別のキャンバスを映す
+        //パネルを移動
+        panels.transform.localPosition = new Vector3(-1200.0f, 0.0f, 0.0f);
     }
 
     //ComingSoonボタンを押した
     public void PressComingSoon() {
 
+    }
+
+    //Backボタンを押した
+    public void PressBack() {
+        //パネルを移動
+        panels.transform.localPosition = new Vector3(0.0f, 0.0f, 0.0f);
     }
 }
