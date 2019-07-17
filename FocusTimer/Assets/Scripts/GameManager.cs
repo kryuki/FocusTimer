@@ -63,9 +63,15 @@ public class GameManager : MonoBehaviour {
         savePath = basePath + "/../TimeHistory.txt";
 #elif UNITY_IOS
         basePath = Application.persistentDataPath;
-        info = new DirectoryInfo(basePath + "/FocusTimer");
-        savePath = info.FullName + "/TimeHistory.txt";
+        info_unity = new DirectoryInfo(basePath + "/FocusTimer");
+        savePath = info_unity.FullName + "/TimeHistory.txt";
 #endif
+
+        //savePathが存在しないとき
+        if (!File.Exists(savePath)) {
+            StreamWriter writer = File.CreateText(savePath);
+            writer.Close();
+        }
 
         //1000行分の最初分の行を記入する
         FileInfo info = new FileInfo(savePath);
