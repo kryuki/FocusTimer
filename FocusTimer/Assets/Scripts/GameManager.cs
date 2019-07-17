@@ -7,7 +7,7 @@ using System.IO;
 
 public class GameManager : MonoBehaviour {
     //ブール値系
-    bool isCounting = true;  //計測が開始しているか
+    bool isCounting = false;  //計測が開始しているか
     bool isPopup = false;  //ポップアップが表示されているか
 
     //表示用テキスト
@@ -37,7 +37,7 @@ public class GameManager : MonoBehaviour {
     //パス系
     string basePath;  //ベースとなるパス
     string savePath;  //保存先のパス
-    DirectoryInfo info;
+    DirectoryInfo info_unity;
 
     // Start is called before the first frame update
     void Start() {
@@ -49,8 +49,8 @@ public class GameManager : MonoBehaviour {
             Directory.CreateDirectory(basePath + "/../FocusTimer");
         }
         //DirectoryInfoを取る
-        info = new DirectoryInfo(basePath + "/../FocusTimer");
-        savePath = info.FullName + "/TimeHistory.txt";
+        info_unity = new DirectoryInfo(basePath + "/../FocusTimer");
+        savePath = info_unity.FullName + "/TimeHistory.txt";
 #elif UNITY_ANDROID
         basePath = Application.persistentDataPath;
         savePath = basePath + "/../TimeHistory.txt";
@@ -61,15 +61,23 @@ public class GameManager : MonoBehaviour {
 #endif
 
         //1000行分の最初分の行を記入する
-        using (StreamWriter writer = new StreamWriter(savePath)) {
-            FileInfo info = new FileInfo(savePath);
-            if (info.Length == 0) {
+        FileInfo info = new FileInfo(savePath);
+        if (info.Length == 0) {
+            using (StreamWriter writer = new StreamWriter(savePath)) {
                 for (int i = 0; i < 10; i++) {
                     writer.WriteLine(DateTime.Today.AddDays(i).Date);
                 }
                 writer.Close();
             }
         }
+
+        //今日の合計勉強時間を表示する
+        //テキストファイルから、これまでの時間を取得する
+        string total_time = GetCurrentSumTime();
+        //★合計時間を表示する
+        dayTextSecond.text = String.Format("{0:D2}", int.Parse(total_time.Split(':')[2]));  //秒
+        dayTextMinute.text = String.Format("{0:D2}", int.Parse(total_time.Split(':')[1]));  //分
+        dayTextHour.text = String.Format("{0:D2}", int.Parse(total_time.Split(':')[0]));  //時
     }
 
     // Update is called once per frame
@@ -125,6 +133,11 @@ public class GameManager : MonoBehaviour {
         //カウント中か否かにかかわらず、カウントを停止する
         isCounting = false;
 
+        //もし時間がゼロなら、リターン
+        if (time == 0) {
+            return;
+        }
+
         //ポップアップを表示する
         isPopup = true;
     }
@@ -137,24 +150,10 @@ public class GameManager : MonoBehaviour {
 
     //OKボタンを押した
     public void PressOK() {
-        //これまでの時間を取得する
-        FileStream fs_read = File.OpenRead(savePath);
-        StreamReader reader = new StreamReader(fs_read);
-        string total_time = null;
-        while (true) {
-            string read = reader.ReadLine();
-            if (read == null) {
-                break;
-            }
-            string[] splits = read.Split(' ');
-            if (splits[0] == DateTime.Today.ToString().Split(' ')[0]) {
-                total_time = splits[1];
-            }
-        }
-        fs_read.Seek(0, SeekOrigin.Begin);  //読み込み位置初期化
-        string all;
-        all = reader.ReadToEnd();
-        reader.Close();
+        //★これまでの時間を取得する
+        string total_time = GetCurrentSumTime();
+        //すべてのテキストデータを取得
+        string all = GetAllText();
 
         //取得したこれまでの時間を秒に変換する
         string[] time_splits = total_time.Split(':');
@@ -200,5 +199,38 @@ public class GameManager : MonoBehaviour {
     //日付が変わった時の処理
     void EndOfTheDay() {
 
+    }
+    
+    //これまでの合計時間を求める
+    string GetCurrentSumTime() {
+        FileStream fs_read = File.OpenRead(savePath);
+        StreamReader reader = new StreamReader(fs_read);
+        string total_time = null;
+        while (true) {
+            string read = reader.ReadLine();
+            if (read == null) {
+                break;
+            }
+            string[] splits = read.Split(' ');
+            if (splits[0] == DateTime.Today.ToString().Split(' ')[0]) {
+                total_time = splits[1];
+            }
+        }
+        fs_read.Seek(0, SeekOrigin.Begin);  //読み込み位置初期化
+        reader.Close();
+
+        return total_time;
+    }
+
+    //テキストファイルの全文を求める
+    string GetAllText() {
+        FileStream fs_read = File.OpenRead(savePath);
+        StreamReader reader = new StreamReader(fs_read);
+        fs_read.Seek(0, SeekOrigin.Begin);  //読み込み位置初期化
+        string all;
+        all = reader.ReadToEnd();
+        reader.Close();
+
+        return all;
     }
 }
