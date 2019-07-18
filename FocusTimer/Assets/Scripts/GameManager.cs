@@ -208,7 +208,7 @@ public class GameManager : MonoBehaviour {
         //時の計算
         int hours_sum = (int)Mathf.Floor(time_sum) / 3600;  //3600で割った商が時間である
         //文字列置換
-        all = all.Replace(DateTime.Today.ToString().Split(' ')[0] + ' ' + total_time, DateTime.Today.ToString().Split(' ')[0] + ' ' + hours_sum.ToString() + ':' + minutes_sum.ToString() + ':' + seconds_sum.ToString());
+        all = all.Replace(DateTime.Today.ToString("yyyy/MM/dd").Split(' ')[0] + ' ' + total_time, DateTime.Today.ToString("yyyy/MM/dd").Split(' ')[0] + ' ' + hours_sum.ToString() + ':' + minutes_sum.ToString() + ':' + seconds_sum.ToString());
 
         StreamWriter writer = new StreamWriter(savePath, false);
         writer.Write(all);
