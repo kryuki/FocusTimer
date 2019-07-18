@@ -264,7 +264,7 @@ public class GameManager : MonoBehaviour {
                 break;
             }
             string[] splits = read.Split(' ');
-            if (splits[0] == DateTime.Today.ToString().Split(' ')[0]) {
+            if (splits[0] == DateTime.Today.ToString("yyyy/MM/dd").Split(' ')[0]) {
                 total_time = splits[1];
                 debugText1.text = splits[1];
             }
