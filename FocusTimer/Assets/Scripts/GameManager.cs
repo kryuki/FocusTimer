@@ -46,6 +46,12 @@ public class GameManager : MonoBehaviour {
     DateTime date_prev;
     DateTime date_now;
 
+    //デバッグ用
+    public Text debugText1;
+    public Text debugText2;
+    public Text debugText3;
+    public Text debugText4;
+
     // Start is called before the first frame update
     void Start() {
         //エディタ上、アンドロイド、iOSそれぞれについて保存パスを取る
@@ -179,15 +185,20 @@ public class GameManager : MonoBehaviour {
     public void PressOK() {
         //★これまでの時間を取得する
         string total_time = GetCurrentSumTime();
+        debugText2.text = total_time;
+
         //すべてのテキストデータを取得
         string all = GetAllText();
+        debugText3.text = all;
 
         //取得したこれまでの時間を秒に変換する
         string[] time_splits = total_time.Split(':');
         int time_passed = 3600 * int.Parse(time_splits[0]) + 60 * int.Parse(time_splits[1]) + int.Parse(time_splits[2]);
+        debugText4.text = time_passed.ToString();
 
         //★合計時間をテキストファイルに記録する
         int time_sum = time_passed + (int)Mathf.Floor(time);
+
         //合計時間を、00:00:00の形で表記する
         //秒の計算
         int seconds_sum = (int)Mathf.Floor(time_sum) % 60;  //現在のカウント時間を60で割った余りが秒である
@@ -246,6 +257,7 @@ public class GameManager : MonoBehaviour {
         FileStream fs_read = File.OpenRead(savePath);
         StreamReader reader = new StreamReader(fs_read);
         string total_time = null;
+        
         while (true) {
             string read = reader.ReadLine();
             if (read == null) {
@@ -254,6 +266,7 @@ public class GameManager : MonoBehaviour {
             string[] splits = read.Split(' ');
             if (splits[0] == DateTime.Today.ToString().Split(' ')[0]) {
                 total_time = splits[1];
+                debugText1.text = splits[1];
             }
         }
         fs_read.Seek(0, SeekOrigin.Begin);  //読み込み位置初期化
